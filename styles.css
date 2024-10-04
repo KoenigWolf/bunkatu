@@ -1,23 +1,21 @@
 /* カラーテーマや共通スタイルをCSS変数で管理 */
 :root {
-    --primary-bg: #1e1e2f;
-    --secondary-bg: #2b2b3b;
-    --primary-text: #e0e0e0;
-    --secondary-text: #c0c0c0;
-    --accent-color: #007bff;
-    --button-bg: #3b3b4b;
-    --button-hover-bg: #505065;
-    --success-color: #28a745;
-    --danger-color: #dc3545;
-    --danger-hover: #c82333;
-    --textarea-border: #505050;
+    --primary-bg: #121212; /* ダーク背景 */
+    --secondary-bg: #1F1F1F; /* コンテンツ背景 */
+    --primary-text: #EAEAEA; /* 明るいグレー */
+    --secondary-text: #A0A0A0; /* サブテキスト用のグレー */
+    --accent-color: #4FC3F7; /* 明るいブルー */
+    --button-bg: #4FC3F7; /* ブルー系ボタン */
+    --button-hover-bg: #039BE5; /* ホバー時のブルー */
+    --success-color: #28a745; /* 成功メッセージ用の色 */
+    --textarea-border: #333333; /* ボーダーのダークカラー */
     --font-size-desktop: 16px;
     --font-size-mobile: 14px;
 }
 
-/* 共通スタイル */
+/* フォントを美しいLoraフォントに変更 */
 body {
-    font-family: 'Roboto', sans-serif;
+    font-family: 'Lora', serif;
     background-color: var(--primary-bg);
     color: var(--primary-text);
     margin: 0;
@@ -27,80 +25,76 @@ body {
 h1 {
     text-align: center;
     margin-bottom: 20px;
-    font-size: 2rem;
+    font-size: 2.5rem;
+    color: var(--accent-color); /* タイトルはブルーで強調 */
 }
 
 .container {
     max-width: 800px;
     margin: 0 auto;
-    background-color: var(--secondary-bg);
+    background-color: var(--secondary-bg); /* コンテンツボックスの背景にダークグレー */
     padding: 20px;
     border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); /* 少し濃い影をつける */
 }
 
-/* テキストエリアの共通スタイル */
+/* 入力フィールドやテキストエリアのデザイン */
+input[type="number"],
 textarea {
     width: 100%;
-    padding: 10px;
-    margin-bottom: 20px;
-    border: 1px solid var(--textarea-border);
-    border-radius: 5px;
-    font-size: var(--font-size-desktop);
-    background-color: var(--primary-bg);
+    padding: 15px;
+    margin-bottom: 15px;
+    border: 2px solid var(--textarea-border);
+    border-radius: 10px;
+    font-size: 1rem;
+    background-color: var(--secondary-bg); /* ダークグレー背景 */
     color: var(--primary-text);
     box-sizing: border-box;
     outline: none;
-    transition: border-color 0.3s;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
+input[type="number"]:focus,
 textarea:focus {
     border-color: var(--accent-color);
+    box-shadow: 0 0 12px var(--accent-color);
 }
 
-.output textarea {
-    height: 100px;
-    resize: none;
-}
-
-/* ボタンの共通スタイル */
+/* ボタンデザイン */
 button {
     width: 100%;
-    padding: 15px;
-    background-color: var(--button-bg);
-    color: var(--primary-text);
+    padding: 12px;
+    background-color: var(--button-bg); /* ブルー系ボタン */
+    color: white;
     font-size: var(--font-size-desktop);
     font-weight: bold;
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: background-color 0.3s, transform 0.2s ease;
     margin-bottom: 10px;
 }
 
 button:hover {
-    background-color: var(--button-hover-bg);
-}
-
-/* コピー/クリアボタン */
-.copy-button {
-    background-color: var(--success-color);
-    margin-bottom: 5px;
-}
-
-.copy-button:hover {
-    background-color: #218838;
+    background-color: var(--button-hover-bg); /* ホバー時に濃いブルー */
+    transform: scale(1.02);
 }
 
 .clear-button {
-    background-color: var(--danger-color);
+    background-color: var(--button-bg); /* クリアボタンもブルーに */
 }
 
 .clear-button:hover {
-    background-color: var(--danger-hover);
+    background-color: var(--button-hover-bg);
 }
 
-/* その他のスタイル */
+/* 出力エリアのデザイン */
+.output textarea {
+    height: 100px;
+    resize: none;
+}
+
 .message {
     text-align: center;
     margin-top: 20px;
@@ -110,7 +104,14 @@ button:hover {
 }
 
 .output-info {
-    color: var(--secondary-text);
+    color: var(--secondary-text); /* サブ情報にはミュートグレー */
     font-size: 0.875rem;
     margin-bottom: 5px;
+}
+
+/* フォーカス時のアクセント強調 */
+input[type="number"]:focus,
+textarea:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 12px var(--accent-color);
 }
