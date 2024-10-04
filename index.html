@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>テキスト分割くん</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- 外部CSSファイルの読み込み -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="container">
+        <h1>テキスト分割くん</h1>
+
+        <textarea id="inputText" placeholder="ここにテキストを入力してください..."></textarea>
+        <button id="splitButton">分割する</button>
+        <button id="clearButton" class="clear-button">クリア</button>
+
+        <div id="outputContainer" class="output"></div>
+
+        <div id="copyMessage" class="message">テキストがクリップボードにコピーされました！</div>
+    </div>
+
+    <!-- 外部JavaScriptファイルの読み込み -->
+    <script src="script.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,116 @@
+/* カラーテーマや共通スタイルをCSS変数で管理 */
+:root {
+    --primary-bg: #1e1e2f;
+    --secondary-bg: #2b2b3b;
+    --primary-text: #e0e0e0;
+    --secondary-text: #c0c0c0;
+    --accent-color: #007bff;
+    --button-bg: #3b3b4b;
+    --button-hover-bg: #505065;
+    --success-color: #28a745;
+    --danger-color: #dc3545;
+    --danger-hover: #c82333;
+    --textarea-border: #505050;
+    --font-size-desktop: 16px;
+    --font-size-mobile: 14px;
+}
+
+/* 共通スタイル */
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: var(--primary-bg);
+    color: var(--primary-text);
+    margin: 0;
+    padding: 20px;
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 2rem;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    background-color: var(--secondary-bg);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* テキストエリアの共通スタイル */
+textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid var(--textarea-border);
+    border-radius: 5px;
+    font-size: var(--font-size-desktop);
+    background-color: var(--primary-bg);
+    color: var(--primary-text);
+    box-sizing: border-box;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+textarea:focus {
+    border-color: var(--accent-color);
+}
+
+.output textarea {
+    height: 100px;
+    resize: none;
+}
+
+/* ボタンの共通スタイル */
+button {
+    width: 100%;
+    padding: 15px;
+    background-color: var(--button-bg);
+    color: var(--primary-text);
+    font-size: var(--font-size-desktop);
+    font-weight: bold;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-bottom: 10px;
+}
+
+button:hover {
+    background-color: var(--button-hover-bg);
+}
+
+/* コピー/クリアボタン */
+.copy-button {
+    background-color: var(--success-color);
+    margin-bottom: 5px;
+}
+
+.copy-button:hover {
+    background-color: #218838;
+}
+
+.clear-button {
+    background-color: var(--danger-color);
+}
+
+.clear-button:hover {
+    background-color: var(--danger-hover);
+}
+
+/* その他のスタイル */
+.message {
+    text-align: center;
+    margin-top: 20px;
+    color: var(--success-color);
+    font-size: 1rem;
+    display: none;
+}
+
+.output-info {
+    color: var(--secondary-text);
+    font-size: 0.875rem;
+    margin-bottom: 5px;
+}
