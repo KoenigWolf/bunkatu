@@ -37,7 +37,7 @@
 
 ---
 
-#### リンク: [Bunkatuを試す](https://github.com/KoenigWolf/bunkatu)
+#### リンク: [Bunkatuを試す](https://bunkatu.vercel.app/)
 
 ---
 
