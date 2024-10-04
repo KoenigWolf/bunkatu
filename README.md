@@ -1,4 +1,4 @@
-# bunkatu
+# Bunkatu
 
 ### リリースのお知らせ　新しいテキスト分割ツール「Bunkatu」登場
 
