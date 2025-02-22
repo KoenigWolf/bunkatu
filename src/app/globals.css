@@ -1,0 +1,135 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* =============================
+       ライトモードのカラーパレット
+       - UI全体のデフォルトのカラーを定義
+       - ダークモードと切り替えやすいよう統一性を確保
+    ============================= */
+
+    /* 背景と前景色 */
+    --background: 0 0% 100%; /* 白背景 */
+    --foreground: 240 10% 3.9%; /* 濃いグレー（テキスト用） */
+
+    /* プライマリーカラー（ブランドカラー） */
+    --primary: 240 5.9% 10%; /* 深い青紫 */
+    --primary-foreground: 0 0% 98%; /* ほぼ白 */
+
+    /* アクセントカラー（強調用） */
+    --accent: 240 4.8% 95.9%; /* 明るいグレー */
+    --accent-foreground: var(--primary); /* ブランドカラーを継承 */
+
+    /* セカンダリーカラー（補助用） */
+    --secondary: var(--accent); /* アクセントカラーと統一 */
+    --secondary-foreground: var(--primary); /* ブランドカラーを継承 */
+
+    /* ミュートカラー（無効状態など） */
+    --muted: 240 4.8% 95.9%; /* 明るいグレー */
+    --muted-foreground: 240 3.8% 46.1%; /* やや暗めのグレー */
+
+    /* ボーダー・フォーム要素 */
+    --border: 240 5.9% 90%; /* 薄いグレー */
+    --input: var(--border); /* ボーダーと同じ */
+    --ring: var(--foreground); /* フォーカスリングの色 */
+
+    /* 破壊的アクション（削除・警告用） */
+    --destructive: 0 84.2% 60.2%; /* 赤 */
+    --destructive-foreground: 0 0% 98%; /* ほぼ白 */
+
+    /* 角丸のデフォルト値 */
+    --radius: 0.5rem; /* 8px相当 */
+
+    /* チャート用のカラーパレット（データビジュアライゼーション向け） */
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+  }
+
+  .dark {
+    /* =============================
+       ダークモードのカラーパレット
+       - ライトモードと対になるカラーを定義
+       - できるだけ一貫性を保ちつつ、コントラストを考慮
+    ============================= */
+
+    /* 背景と前景色 */
+    --background: 240 10% 3.9%; /* 暗めのグレー */
+    --foreground: 0 0% 98%; /* ほぼ白 */
+
+    /* プライマリーカラー（ブランドカラー） */
+    --primary: 0 0% 98%; /* ほぼ白 */
+    --primary-foreground: 240 5.9% 10%; /* 深い青紫 */
+
+    /* アクセントカラー（強調用） */
+    --accent: 240 3.7% 15.9%; /* 濃いグレー */
+    --accent-foreground: var(--foreground); /* ほぼ白 */
+
+    /* セカンダリーカラー（補助用） */
+    --secondary: var(--accent); /* アクセントカラーと統一 */
+    --secondary-foreground: var(--foreground); /* ほぼ白 */
+
+    /* ミュートカラー（無効状態など） */
+    --muted: 240 3.7% 15.9%; /* 濃いグレー */
+    --muted-foreground: 240 5% 64.9%; /* 明るめのグレー */
+
+    /* ボーダー・フォーム要素 */
+    --border: 240 3.7% 15.9%; /* 濃いグレー */
+    --input: var(--border); /* ボーダーと同じ */
+    --ring: 240 4.9% 83.9%; /* 明るめの青紫 */
+
+    /* 破壊的アクション（削除・警告用） */
+    --destructive: 0 62.8% 30.6%; /* 暗めの赤 */
+    --destructive-foreground: var(--foreground); /* ほぼ白 */
+
+    /* チャート用のカラーパレット */
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* =============================
+   UI エフェクト & デザイン
+============================= */
+
+/* 背景グラデーション（ブランドカラーを活用） */
+.gradient-bg {
+  @apply bg-gradient-to-br from-primary via-accent to-secondary;
+}
+
+/* テキストグラデーション（インパクトのあるテキスト表現） */
+.text-gradient {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-primary via-accent to-secondary;
+}
+
+/* グラスモーフィズム（背景を透過させたモダンなデザイン） */
+.glass-effect {
+  @apply bg-background/5 backdrop-blur-md border border-white/10 dark:border-white/5;
+}
+
+/* ホバー時のインタラクティブエフェクト（動的な要素に適用） */
+.hover-effect {
+  @apply transition-all duration-300 ease-out hover:scale-102 hover:shadow-lg hover:shadow-primary/10;
+}
+
+/* ブランドカラーを活かしたボタングラデーション */
+.button-gradient {
+  @apply bg-gradient-to-r from-primary via-accent to-primary hover:from-primary/90 hover:via-accent/90 hover:to-primary/90;
+}
