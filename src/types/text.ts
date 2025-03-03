@@ -26,7 +26,7 @@ export interface TextSplitterActions {
   setText: (text: string) => void           // テキストを設定
   setSplitSize: (size: number) => void      // 分割サイズを設定
   setParts: (parts: string[]) => void       // 分割後のテキストを設定
-  splitText: () => Promise<void>            // テキスト分割を実行
+  splitText: () => void                     // テキスト分割を実行
   clearAll: () => void                      // 全データをクリア
 }
 
@@ -43,19 +43,4 @@ export interface TextInputProps extends TextSplitBase {
 // =============================
 export interface OutputProps {
   parts: string[] // 分割されたテキストのリスト
-}
-
-// =============================
-// Web Worker のメッセージ型
-// =============================
-export type WorkerMessage = 
-  | { type: "progress"; completed: number; total: number } // 進捗状況
-  | { type: "complete"; parts: string[] }                  // 分割完了メッセージ
-
-// =============================
-// Web Worker への入力データの型
-// =============================
-export interface WorkerData {
-  text: string      // 分割対象のテキスト
-  splitSize: number // 分割サイズ
 }

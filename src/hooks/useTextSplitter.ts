@@ -1,162 +1,80 @@
-import { useState, useCallback, useMemo } from "react"
-import type { 
-  TextSplitterState, 
-  TextSplitterActions,
-  WorkerMessage,
-  WorkerData
-} from "@/types/text"
+import { useState, useCallback } from "react"
+import type { TextSplitterState, TextSplitterActions } from "@/types/text"
 import { TEXT_SPLIT_CONFIG, ERROR_MESSAGES } from "@/lib/constants"
-import { debounce, encodeText } from "@/lib/utils"
-
-const {
-  DEFAULT_SIZE,
-  CHUNK_PROCESSING_SIZE,
-  DEBOUNCE_DELAY,
-  WORKER_BATCH_SIZE
-} = TEXT_SPLIT_CONFIG
-
-// =============================
-// Web Worker スクリプトの作成
-// =============================
-
-const generateWorkerScript = () => `
-  function* createTextChunks(text, splitSize, batchSize) {
-    if (!splitSize) {
-      yield [text];
-      return;
-    }
-    
-    for (let i = 0; i < text.length; i += batchSize) {
-      const chunk = text.slice(i, i + batchSize);
-      const chunkParts = [];
-      
-      for (let j = 0; j < chunk.length; j += splitSize) {
-        chunkParts.push(chunk.slice(j, j + splitSize));
-      }
-      
-      yield chunkParts;
-    }
-  }
-
-  self.onmessage = function(e) {
-    const { text, splitSize } = e.data;
-    const textParts = [];
-    const chunkGenerator = createTextChunks(text, splitSize, ${WORKER_BATCH_SIZE});
-    let processedLength = 0;
-
-    for (const chunk of chunkGenerator) {
-      textParts.push(...chunk);
-      processedLength += chunk.length * (splitSize || text.length);
-
-      if (processedLength % ${CHUNK_PROCESSING_SIZE} === 0) {
-        self.postMessage({ 
-          type: 'progress', 
-          completed: processedLength, 
-          total: text.length 
-        });
-      }
-    }
-
-    self.postMessage({ type: 'complete', parts: textParts });
-  }
-`;
-
-// =============================
-// Web Worker の作成
-// =============================
-
-const createTextSplitWorker = (text: string, splitSize: number) => {
-  return new Promise<string[]>((resolve, reject) => {
-    try {
-      const worker = new Worker(
-        URL.createObjectURL(new Blob([generateWorkerScript()], { type: "text/javascript" }))
-      );
-
-      worker.onmessage = (e: MessageEvent<WorkerMessage>) => {
-        if (e.data.type === "complete") {
-          resolve(e.data.parts);
-          worker.terminate();
-        }
-      };
-
-      worker.onerror = (error) => {
-        console.error("Web Worker Error:", error);
-        reject(error);
-        worker.terminate();
-      };
-
-      const textBuffer = encodeText(text);
-      const workerData: WorkerData = { text, splitSize };
-      worker.postMessage(workerData, [textBuffer]);
-    } catch (error) {
-      console.error("Worker Creation Failed:", error);
-      reject(error);
-    }
-  });
-};
 
 // =============================
 // テキストスプリッターのカスタムフック
 // =============================
 
 export function useTextSplitter(): TextSplitterState & TextSplitterActions {
-  const [text, setText] = useState<string>("")
-  const [splitSize, setSplitSize] = useState<number>(DEFAULT_SIZE)
+  const [text, setText] = useState("")
+  const [splitSize, setSplitSize] = useState<number>(TEXT_SPLIT_CONFIG.DEFAULT_SIZE)
   const [parts, setParts] = useState<string[]>([])
   const [isProcessing, setIsProcessing] = useState(false)
 
   // =============================
-  // 入力テキストの変更をデバウンス
-  // =============================
-  const debouncedSetText = useMemo(
-    () => debounce<[string]>((text: string) => setText(text), DEBOUNCE_DELAY),
-    []
-  );
-
-  // =============================
-  // テキスト分割処理（Web Worker 使用）
+  // テキスト分割処理
   // =============================
 
-  const splitText = useCallback(async () => {
-    if (isProcessing) return;
+  const splitText = useCallback(() => {
+    if (!text.trim() || splitSize <= 0) {
+      setParts([])
+      return
+    }
 
     try {
-      setIsProcessing(true);
+      setIsProcessing(true)
+      const textParts: string[] = []
 
-      if (!text.trim()) {
-        setParts([]);
-        return;
+      // テキストを指定サイズで分割
+      for (let i = 0; i < text.length; i += splitSize) {
+        textParts.push(text.slice(i, i + splitSize))
       }
 
-      const textParts = await createTextSplitWorker(text, splitSize);
-      setParts(textParts);
+      setParts(textParts)
     } catch (error) {
-      console.error(ERROR_MESSAGES.SPLIT_ERROR, error);
-      setParts([]);
+      console.error(ERROR_MESSAGES.SPLIT_ERROR, error)
+      setParts([])
     } finally {
-      setIsProcessing(false);
+      setIsProcessing(false)
     }
-  }, [text, splitSize, isProcessing]);
+  }, [text, splitSize])
 
   // =============================
-  // クリア処理（入力と結果をリセット）
+  // テキスト更新処理
+  // =============================
+
+  const handleTextChange = useCallback((newText: string) => {
+    setText(newText)
+    if (newText.trim() && splitSize > 0) {
+      setIsProcessing(true)
+      setParts([])
+      splitText()
+    } else {
+      setParts([])
+    }
+  }, [splitSize, splitText])
+
+  // =============================
+  // クリア処理
   // =============================
 
   const clearAll = useCallback(() => {
-    setText("");
-    setParts([]);
-    setIsProcessing(false);
-  }, []);
+    setText("")
+    setSplitSize(TEXT_SPLIT_CONFIG.DEFAULT_SIZE)
+    setParts([])
+    setIsProcessing(false)
+  }, [])
 
   return {
     text,
     splitSize,
     parts,
     isProcessing,
-    setText: debouncedSetText,
+    setText: handleTextChange,
     setSplitSize,
     setParts,
     splitText,
     clearAll,
-  };
+  }
 }

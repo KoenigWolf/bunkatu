@@ -1,21 +1,33 @@
 "use client"
 
-import { memo, type ChangeEvent, useCallback, useState } from "react"
-import { motion } from "framer-motion"
+import { memo, type ChangeEvent, useCallback, useState, useMemo } from "react"
 import type { TextInputProps } from "@/types/text"
+
+// =============================
+// 定数定義
+// =============================
+
+const BASE_TEXTAREA_CLASS = `w-full h-40 p-3 rounded-lg bg-card text-card-foreground placeholder-muted-foreground 
+  border border-gray-400 dark:border-gray-600
+  focus:ring-2 focus:ring-blue-400 dark:focus:ring-purple-400 focus:outline-none resize-y transition-colors duration-150`;
+
+const BASE_NUMBER_INPUT_CLASS = `w-full p-2 rounded-lg bg-card text-card-foreground 
+  border border-gray-400 dark:border-gray-600
+  focus:ring-2 focus:ring-blue-400 dark:focus:ring-purple-400 focus:outline-none transition-colors duration-150`;
+
+const FOCUS_CLASS = "shadow-md shadow-blue-400/30 dark:shadow-purple-400/30 border-blue-500 dark:border-purple-500";
 
 // =============================
 // メモ化されたラベルコンポーネント
 // =============================
 
 const InputLabel = memo(({ htmlFor, children }: { htmlFor: string; children: React.ReactNode }) => (
-  <motion.label
+  <label
     htmlFor={htmlFor}
-    className="block text-sm font-medium text-foreground/80"
-    whileHover={{ scale: 1.01 }} // hover：1.01倍に拡大
+    className="block text-sm font-medium text-foreground/80 transition-transform hover:scale-[1.01] duration-150"
   >
     {children}
-  </motion.label>
+  </label>
 ))
 
 // =============================
@@ -23,14 +35,12 @@ const InputLabel = memo(({ htmlFor, children }: { htmlFor: string; children: Rea
 // =============================
 
 const CharCounter = memo(({ count, className }: { count: number; className?: string }) => (
-  <motion.div
-    className={className}
-    initial={{ opacity: 0, y: -10 }} // hidden：透明 & 10px上に移動
-    animate={{ opacity: 1, y: 0 }} // visible：表示 & 元の位置
-    transition={{ duration: 0.2 }} // duration：0.2秒でフェードイン
+  <div 
+    className={`${className} opacity-0 transition-all duration-200 animate-fade-in`}
+    style={{ animation: 'fadeIn 0.2s ease forwards' }}
   >
     <span className="font-medium text-foreground/70">{count.toLocaleString()}</span>
-  </motion.div>
+  </div>
 ))
 
 // =============================
@@ -43,6 +53,9 @@ const TextInput = memo(({ text, splitSize, onTextChange, onSplitSizeChange }: Te
   // =============================
 
   const [isFocused, setIsFocused] = useState({ text: false, size: false })
+  
+  // 文字数カウントをメモ化して不要な再計算を防止
+  const textLength = useMemo(() => text.length, [text]);
 
   // =============================
   // テキスト入力処理
@@ -50,9 +63,12 @@ const TextInput = memo(({ text, splitSize, onTextChange, onSplitSizeChange }: Te
 
   const handleTextChange = useCallback(
     (e: ChangeEvent<HTMLTextAreaElement>) => {
-      onTextChange(e.target.value)
+      const newValue = e.target.value;
+      if (newValue !== text) {
+        onTextChange(newValue);
+      }
     },
-    [onTextChange]
+    [onTextChange, text]
   )
 
   // =============================
@@ -61,9 +77,12 @@ const TextInput = memo(({ text, splitSize, onTextChange, onSplitSizeChange }: Te
 
   const handleSplitSizeChange = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
-      onSplitSizeChange(e.target.value === "" ? 0 : Number(e.target.value))
+      const newValue = e.target.value === "" ? 0 : Number(e.target.value);
+      if (newValue !== splitSize) {
+        onSplitSizeChange(newValue);
+      }
     },
-    [onSplitSizeChange]
+    [onSplitSizeChange, splitSize]
   )
 
   // =============================
@@ -71,16 +90,40 @@ const TextInput = memo(({ text, splitSize, onTextChange, onSplitSizeChange }: Te
   // =============================
 
   const toggleFocus = useCallback((field: "text" | "size", focus: boolean) => {
-    setIsFocused((prev) => ({ ...prev, [field]: focus }))
-  }, [])
+    setIsFocused(prev => {
+      if (prev[field] === focus) return prev;
+      return { ...prev, [field]: focus };
+    });
+  }, []);
+
+  // メモ化されたクラス名
+  const textareaClassName = useMemo(() => 
+    `${BASE_TEXTAREA_CLASS} ${isFocused.text ? FOCUS_CLASS : ""}`, 
+    [isFocused.text]
+  );
+
+  const numberInputClassName = useMemo(() => 
+    `${BASE_NUMBER_INPUT_CLASS} ${isFocused.size ? FOCUS_CLASS : ""}`,
+    [isFocused.size]
+  );
+
+  // メモ化されたカウンターコンポーネント
+  const TextCounter = useMemo(() => (
+    <CharCounter
+      count={textLength}
+      className="absolute top-0 right-0 px-3 py-1 text-sm text-muted-foreground bg-muted/50 rounded-bl-lg rounded-tr-lg"
+    />
+  ), [textLength]);
+
+  const SizeCounter = useMemo(() => (
+    <CharCounter
+      count={splitSize}
+      className="absolute top-0 right-0 px-2 py-1 text-sm text-muted-foreground bg-muted/50 rounded-bl-lg rounded-tr-lg"
+    />
+  ), [splitSize]);
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-      className="space-y-4"
-    >
+    <div className="space-y-4 animate-fade-in">
       <div className="space-y-2">
         <InputLabel htmlFor="text-input">テキスト</InputLabel>
         <div className="relative">
@@ -90,10 +133,7 @@ const TextInput = memo(({ text, splitSize, onTextChange, onSplitSizeChange }: Te
             onChange={handleTextChange}
             onFocus={() => toggleFocus("text", true)}
             onBlur={() => toggleFocus("text", false)}
-            className={`w-full h-40 p-3 rounded-lg bg-card text-card-foreground placeholder-muted-foreground 
-              border border-gray-400 dark:border-gray-600
-              focus:ring-2 focus:ring-blue-400 dark:focus:ring-purple-400 focus:outline-none resize-y transition-all duration-200 
-              ${isFocused.text ? "shadow-md shadow-blue-400/30 dark:shadow-purple-400/30 border-blue-500 dark:border-purple-500" : ""}`}
+            className={textareaClassName}
             placeholder="ここにテキストを入力してください"
             spellCheck={false}
             autoCorrect="off"
@@ -103,17 +143,14 @@ const TextInput = memo(({ text, splitSize, onTextChange, onSplitSizeChange }: Te
             data-lpignore="true"
             aria-label="テキスト入力"
           />
-          <CharCounter
-            count={text.length}
-            className="absolute top-0 right-0 px-3 py-1 text-sm text-muted-foreground bg-muted/50 rounded-bl-lg rounded-tr-lg"
-          />
+          {TextCounter}
         </div>
       </div>
 
       <div className="space-y-2">
         <InputLabel htmlFor="split-size">分割サイズ（文字）</InputLabel>
         <div className="flex items-center space-x-2">
-          <motion.div className="relative flex-1" whileHover={{ scale: 1.01 }}>
+          <div className="relative flex-1 transition-transform hover:scale-[1.01] duration-150">
             <input
               id="split-size"
               type="number"
@@ -124,23 +161,17 @@ const TextInput = memo(({ text, splitSize, onTextChange, onSplitSizeChange }: Te
               onChange={handleSplitSizeChange}
               onFocus={() => toggleFocus("size", true)}
               onBlur={() => toggleFocus("size", false)}
-              className={`w-full p-2 rounded-lg bg-card text-card-foreground 
-                border border-gray-400 dark:border-gray-600
-                focus:ring-2 focus:ring-blue-400 dark:focus:ring-purple-400 focus:outline-none transition-all duration-200 
-                ${isFocused.size ? "shadow-md shadow-blue-400/30 dark:shadow-purple-400/30 border-blue-500 dark:border-purple-500" : ""}`}
+              className={numberInputClassName}
               autoComplete="off"
               data-form-type="number"
               data-lpignore="true"
               aria-label="分割サイズ"
             />
-            <CharCounter
-              count={splitSize}
-              className="absolute top-0 right-0 px-2 py-1 text-sm text-muted-foreground bg-muted/50 rounded-bl-lg rounded-tr-lg"
-            />
-          </motion.div>
+            {SizeCounter}
+          </div>
         </div>
       </div>
-    </motion.div>
+    </div>
   )
 })
 
